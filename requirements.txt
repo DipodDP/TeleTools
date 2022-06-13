@@ -1,0 +1,5 @@
+pip==22.1.2
+environs~=9.5.0
+redis==4.3.3
+Pyrogram==2.0.27
+TgCrypto~=1.2.3
