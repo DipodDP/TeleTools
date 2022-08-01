@@ -4,22 +4,34 @@ from pyrogram.errors import FloodWait, ChatForwardsRestricted
 
 from app_init import app_init
 from config import load_config
-
 app = app_init()
-config = load_config()
 
-with app:
-    chat_id = input("Enter channel ID")
+
+async def progress(current, total):
+    print(f"{current * 100 / total:.1f}%")
+
+
+async def main():
+
+    await app.start()
+
+    config = load_config()
+    chat_id = input("Enter channel ID: ")
 
     # async def rs_messages(app: Client, chat_id: int)
     last = False
-    i = 1
+    i = input("Enter message id to start from: ")
+    if i is None:
+        i = 1
+    i = int(i)
+
     channel_id = config.channel_id
 
     while last < 29:
 
-        m = app.get_messages(chat_id, i)
+        m = await app.get_messages(chat_id, i)
         if not m.empty:
+            print(m)
             last = 1
             caption = m.caption if m.caption is not None else ''
 
@@ -48,18 +60,28 @@ with app:
             m.text = (m.text + "\n" + caption) if m.text is not None else None
 
             last_message = m.id
-            time.sleep(1.2)
+            time.sleep(1.6)
 
             try:
-                sent = m.copy(config.channel_id)
+                sent = await m.copy(config.channel_id)
 
             except FloodWait as e:
                 print(e, e.value)
                 time.sleep(e.value)
                 i -= 1
             except ChatForwardsRestricted:
-                file = app.download_media(m, in_memory=True)
-                app.send_document(config.channel_id, file) if m.document is not None else None
+
+                file = await app.download_media(m, in_memory=True, progress=progress)
+
+                if m.document is not None:
+                    await app.send_document(config.channel_id, file)
+                elif m.voice is not None:
+                    await app.send_voice(config.channel_id, file, progress=progress)
+                elif m.video_note is not None:
+                    await app.send_video_note(config.channel_id, file)
+                elif m.audio is not None:
+                    await app.send_audio(config.channel_id, file)
+
             except Exception as e:
                 print(m)
                 print(e, last_message)
@@ -70,4 +92,4 @@ with app:
 
         i += 1
 
-print(last_message)
+app.run(main())

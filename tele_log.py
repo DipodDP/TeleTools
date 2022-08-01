@@ -39,5 +39,5 @@ async def my_handler(client, message: Message):
     print(f"ID: {m.date} {chat_id} {chat_title} >>  (ID: {sender_id})  {from_name} ({sender}) - (ID: {msg_id}) {msg}")
 
 
-print('Get_ID is running')
+print('Tele_log is running')
 app.run()
