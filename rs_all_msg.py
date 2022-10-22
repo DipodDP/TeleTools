@@ -18,7 +18,6 @@ async def main():
     config = load_config()
     chat_id = input("Enter channel ID: ")
 
-    # async def rs_messages(app: Client, chat_id: int)
     last = False
     i = input("Enter message id to start from: ")
     if i is None:
@@ -28,6 +27,7 @@ async def main():
     channel_id = config.channel_id
 
     while last < 29:
+        group_id = 0
 
         m = await app.get_messages(chat_id, i)
         if not m.empty:
@@ -63,7 +63,12 @@ async def main():
             time.sleep(1.6)
 
             try:
-                sent = await m.copy(config.channel_id)
+                if m.media_group_id is not None:
+                    if group_id != m.media_group_id:
+                        group_id = m.media_group_id
+                        await app.copy_media_group(channel_id, m.chat.id, m.id)
+                else:
+                    sent = await m.copy(config.channel_id)
 
             except FloodWait as e:
                 print(e, e.value)
@@ -74,13 +79,17 @@ async def main():
                 file = await app.download_media(m, in_memory=True, progress=progress)
 
                 if m.document is not None:
-                    await app.send_document(config.channel_id, file)
+                    await app.send_document(config.channel_id, file, caption=m.caption)
                 elif m.voice is not None:
-                    await app.send_voice(config.channel_id, file, progress=progress)
+                    await app.send_voice(config.channel_id, file, progress=progress, caption=m.caption)
                 elif m.video_note is not None:
                     await app.send_video_note(config.channel_id, file)
                 elif m.audio is not None:
-                    await app.send_audio(config.channel_id, file)
+                    await app.send_audio(config.channel_id, file, progress=progress, caption=m.caption)
+                elif m.video is not None:
+                    await app.send_video(config.channel_id, file, progress=progress, caption=m.caption)
+                elif m.animation is not None:
+                    app.send_animation(config.channel_id, file, caption=m.caption)
 
             except Exception as e:
                 print(m)

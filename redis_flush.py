@@ -30,8 +30,3 @@ except Exception as e:
     print(f"Invalid Redis credentials! Exiting the script!\n {e}")
     sys.exit(1)
 
-
-
-
-
-
