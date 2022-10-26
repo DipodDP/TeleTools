@@ -80,6 +80,8 @@ async def main():
 
                 if m.document is not None:
                     await app.send_document(config.channel_id, file, caption=m.caption)
+                elif m.photo is not None:
+                    await app.send_photo(config.channel_id, file, progress=progress, caption=m.caption)
                 elif m.voice is not None:
                     await app.send_voice(config.channel_id, file, progress=progress, caption=m.caption)
                 elif m.video_note is not None:
@@ -89,7 +91,7 @@ async def main():
                 elif m.video is not None:
                     await app.send_video(config.channel_id, file, progress=progress, caption=m.caption)
                 elif m.animation is not None:
-                    app.send_animation(config.channel_id, file, caption=m.caption)
+                    await app.send_animation(config.channel_id, file, caption=m.caption)
 
             except Exception as e:
                 print(m)
