@@ -84,6 +84,8 @@ async def main():
                     await app.send_photo(config.channel_id, file, progress=progress, caption=m.caption)
                 elif m.voice is not None:
                     await app.send_voice(config.channel_id, file, progress=progress, caption=m.caption)
+                elif m.photo is not None:
+                    await app.send_photo(config.channel_id, file, progress=progress, caption=m.caption)
                 elif m.video_note is not None:
                     await app.send_video_note(config.channel_id, file)
                 elif m.audio is not None:
